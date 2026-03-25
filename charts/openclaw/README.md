@@ -2,8 +2,6 @@
 
 用于在 Kubernetes 上部署 OpenClaw 的 Helm chart —— OpenClaw 是一个 AI 助手，可连接到消息平台并自主执行任务。
 
-基于 [bjw-s app-template](https://github.com/bjw-s-labs/helm-charts) 构建。详细演练请参阅 [博客文章](https://serhanekici.com/openclaw-helm.html)。
-
 ---
 
 ## 架构
