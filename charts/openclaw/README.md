@@ -1,11 +1,4 @@
-# 🦞 OpenClaw Helm Chart
-
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/openclaw-helm)](https://artifacthub.io/packages/helm/openclaw-helm/openclaw)
-[![Helm 3](https://img.shields.io/badge/Helm-3.0+-0f1689?logo=helm&logoColor=white)](https://helm.sh/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.26+-326ce5?logo=kubernetes&logoColor=white)](https://kubernetes.io/)
-[![App Version](https://img.shields.io/badge/App_Version-2026.3.2-blue)](https://github.com/openclaw/openclaw)
-[![Chart Version](https://img.shields.io/badge/Chart_Version-1.4.4-blue)](https://github.com/serhanekicii/openclaw-helm)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+# 🦞 OpenClaw k8s
 
 用于在 Kubernetes 上部署 OpenClaw 的 Helm chart —— OpenClaw 是一个 AI 助手，可连接到消息平台并自主执行任务。
 
