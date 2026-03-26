@@ -138,6 +138,10 @@ kubectl exec -n openclaw-node deployment/my-openclaw-node -c main -- \
 
 審批完成後刷新頁面，Web UI 就可以正常進入。
 
+### 📚 文檔指南
+
+- **[訪問與配對指南](./docs/zh-TW/access-and-pairing.md)**：包含本地端口轉發、Ingress 訪問以及設備配對審批的詳細步驟。
+
 如果你只是需要在本機調試時放寬 Control UI 的設備身份要求，可以在執行 `./deploy/install-instance.sh` 前設置 `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true`。這會讓實例生成 `gateway.controlUi.allowInsecureAuth: true`。這個開關不會關閉經由 Ingress 的遠端瀏覽器設備配對檢查。
 
 如果你確實要完全關閉 Control UI 的設備身份檢查、只依賴 Gateway Token 或密碼訪問 UI，需要設置 `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH=true`。這會讓實例生成 `gateway.controlUi.dangerouslyDisableDeviceAuth: true`。這個模式風險很高，只適合短期調試或完全受信任網絡，因為任何拿到 token 的人都可以直接進入 UI。

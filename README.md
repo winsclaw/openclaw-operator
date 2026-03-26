@@ -138,6 +138,10 @@ kubectl exec -n openclaw-node deployment/my-openclaw-node -c main -- \
 
 After approval, refresh the page and the Web UI will open normally.
 
+### 📚 Documentation
+
+- **[Access and Pairing Guide](./docs/en/access-and-pairing.md)**: Detailed steps for local port-forwarding, Ingress access, and device pairing approval.
+
 If you only need to relax Control UI device identity checks for local debugging, set `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true` before running `./deploy/install-instance.sh`. This makes the instance render `gateway.controlUi.allowInsecureAuth: true`. It does not disable device pairing checks for remote browser access through Ingress.
 
 If you truly need to disable Control UI device identity checks entirely and rely on the Gateway token or password only, set `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH=true`. This makes the instance render `gateway.controlUi.dangerouslyDisableDeviceAuth: true`. This is high risk and should only be used for short-lived debugging or fully trusted networks because anyone with the token can enter the UI.

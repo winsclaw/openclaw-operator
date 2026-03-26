@@ -138,6 +138,10 @@ kubectl exec -n openclaw-node deployment/my-openclaw-node -c main -- \
 
 承認後、ページをリロードすると Web UI が通常通り開きます。
 
+### 📚 ドキュメント
+
+- **[アクセスとペアリングガイド](./docs/ja/access-and-pairing.md)**: ローカルポートフォワーディング、Ingress アクセス、デバイスペアリング承認の詳細な手順。
+
 ローカルデバッグのために Control UI のデバイス認証を緩和する必要がある場合は、`./deploy/install-instance.sh` を実行する前に `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true` を設定してください。これにより、インスタンスは `gateway.controlUi.allowInsecureAuth: true` で構成されます。これは Ingress 経由のリモートブラウザアクセスのペアリングチェックを無効にするものではありません。
 
 Control UI のデバイス認証を完全に無効にし、Gateway トークンまたはパスワードのみに依存させる必要がある場合は、`OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH=true` を設定してください。これにより、インスタンスは `gateway.controlUi.dangerouslyDisableDeviceAuth: true` で構成されます。これはリスクが高いため、短時間のデバッグまたは完全に信頼されたネットワーク内でのみ使用してください。トークンを知っている全員が UI にアクセス可能になります。
