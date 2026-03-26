@@ -45,6 +45,10 @@ func (in *OpenClawControlUISpec) DeepCopyInto(out *OpenClawControlUISpec) {
 		out.AllowInsecureAuth = new(bool)
 		*out.AllowInsecureAuth = *in.AllowInsecureAuth
 	}
+	if in.DangerouslyDisableDeviceAuth != nil {
+		out.DangerouslyDisableDeviceAuth = new(bool)
+		*out.DangerouslyDisableDeviceAuth = *in.DangerouslyDisableDeviceAuth
+	}
 }
 
 func (in *OpenClawControlUISpec) DeepCopy() *OpenClawControlUISpec {

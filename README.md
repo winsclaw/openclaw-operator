@@ -138,7 +138,9 @@ kubectl exec -n openclaw-node deployment/my-openclaw-node -c main -- \
 
 After approval, refresh the page and the Web UI will open normally.
 
-If you want to skip browser device pairing entirely and rely on the Gateway token only, set `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true` before running `./deploy/install-instance.sh`. This makes the instance render `gateway.controlUi.allowInsecureAuth: true`. Use it only in trusted environments because anyone with the token can access the UI.
+If you only need to relax Control UI device identity checks for local debugging, set `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true` before running `./deploy/install-instance.sh`. This makes the instance render `gateway.controlUi.allowInsecureAuth: true`. It does not disable device pairing checks for remote browser access through Ingress.
+
+If you truly need to disable Control UI device identity checks entirely and rely on the Gateway token or password only, set `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH=true`. This makes the instance render `gateway.controlUi.dangerouslyDisableDeviceAuth: true`. This is high risk and should only be used for short-lived debugging or fully trusted networks because anyone with the token can enter the UI.
 
 ### OpenClawNode Custom Resource Reference
 
@@ -160,7 +162,8 @@ spec:
     trustedProxies:        # Optional: IPs of your ingress controllers
       - 10.1.1.10
     controlUi:
-      allowInsecureAuth: false   # Optional: skip browser device pairing
+      allowInsecureAuth: false              # Optional: relax device identity checks for local debugging only
+      dangerouslyDisableDeviceAuth: false   # Optional and dangerous: fully disable Control UI device pairing
 
   # Optional: auto-provision an Ingress
   ingress:
@@ -209,11 +212,12 @@ spec:
 | `OPENCLAW_INGRESS_CLASS_NAME` | Optional | Ingress class (default: `nginx`) |
 | `OPENCLAW_INGRESS_TLS_SECRET_NAME` | Optional | TLS Secret for HTTPS |
 | `OPENCLAW_TRUSTED_PROXIES` | Optional | Comma-separated IPs of your load balancers |
-| `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | Optional | Set to `true` to disable browser device pairing and rely on the gateway token only |
+| `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | Optional | Set to `true` to relax Control UI device identity checks for local debugging only; it does not disable remote pairing checks through Ingress |
+| `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH` | Optional | Set to `true` to fully disable Control UI device identity checks and rely on token/password only; high risk |
 | `OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME` | Optional | ConfigMap with custom CA certificates |
 
 ---
 
 ## License
 
-Apache 2.0
+MIT

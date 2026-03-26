@@ -77,6 +77,8 @@ spec:
                     properties:
                       allowInsecureAuth:
                         type: boolean
+                      dangerouslyDisableDeviceAuth:
+                        type: boolean
               ingress:
                 type: object
                 properties:

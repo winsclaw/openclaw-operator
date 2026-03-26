@@ -12,6 +12,7 @@ spec:
     - 10.1.1.11
     controlUi:
       allowInsecureAuth: false
+      dangerouslyDisableDeviceAuth: false
   ingress:
     enabled: true
     className: nginx

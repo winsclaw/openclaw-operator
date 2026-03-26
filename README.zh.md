@@ -138,7 +138,9 @@ kubectl exec -n openclaw-node deployment/my-openclaw-node -c main -- \
 
 审批完成后刷新页面，Web UI 就可以正常进入。
 
-如果你想完全跳过浏览器设备配对、只依赖 Gateway Token 访问 UI，可以在执行 `./deploy/install-instance.sh` 前设置 `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true`。这会让实例生成 `gateway.controlUi.allowInsecureAuth: true`。这个模式只适合受信任环境，因为任何拿到 token 的人都可以进入 UI。
+如果你只是需要在本机调试时放宽 Control UI 的设备身份要求，可以在执行 `./deploy/install-instance.sh` 前设置 `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true`。这会让实例生成 `gateway.controlUi.allowInsecureAuth: true`。这个开关不会关闭经由 Ingress 的远程浏览器设备配对检查。
+
+如果你确实要完全关闭 Control UI 的设备身份检查、只依赖 Gateway Token 或密码访问 UI，需要设置 `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH=true`。这会让实例生成 `gateway.controlUi.dangerouslyDisableDeviceAuth: true`。这个模式风险很高，只适合短期调试或完全受信任网络，因为任何拿到 token 的人都可以直接进入 UI。
 
 ### OpenClawNode 资源定义参考
 
@@ -160,7 +162,8 @@ spec:
     trustedProxies:        # 可选：你的 Ingress 控制器 IP
       - 10.1.1.10
     controlUi:
-      allowInsecureAuth: false   # 可选：跳过浏览器设备配对
+      allowInsecureAuth: false              # 可选：仅用于本机调试时放宽设备身份要求
+      dangerouslyDisableDeviceAuth: false   # 可选且危险：彻底关闭 Control UI 设备配对
 
   # 可选：自动创建 Ingress
   ingress:
@@ -209,11 +212,12 @@ spec:
 | `OPENCLAW_INGRESS_CLASS_NAME` | 可选 | Ingress 类名（默认 `nginx`） |
 | `OPENCLAW_INGRESS_TLS_SECRET_NAME` | 可选 | HTTPS TLS Secret 名称 |
 | `OPENCLAW_TRUSTED_PROXIES` | 可选 | 负载均衡器 IP，逗号分隔 |
-| `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | 可选 | 设为 `true` 后不再要求浏览器设备配对，仅依赖 Gateway Token |
+| `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | 可选 | 设为 `true` 后仅对本机调试场景放宽 Control UI 设备身份要求，不会关闭 Ingress 远程访问的设备配对 |
+| `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH` | 可选 | 设为 `true` 后彻底关闭 Control UI 设备身份检查，仅依赖 Gateway Token/Password，风险很高 |
 | `OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME` | 可选 | 自定义 CA 证书的 ConfigMap 名称 |
 
 ---
 
 ## License
 
-Apache 2.0
+MIT

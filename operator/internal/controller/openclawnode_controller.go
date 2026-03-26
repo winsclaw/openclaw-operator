@@ -447,6 +447,9 @@ func renderOpenClawConfig(node *appsv1alpha1.OpenClawNode) (string, error) {
 	if node.Spec.Gateway.ControlUI != nil && node.Spec.Gateway.ControlUI.AllowInsecureAuth != nil {
 		controlUI["allowInsecureAuth"] = *node.Spec.Gateway.ControlUI.AllowInsecureAuth
 	}
+	if node.Spec.Gateway.ControlUI != nil && node.Spec.Gateway.ControlUI.DangerouslyDisableDeviceAuth != nil {
+		controlUI["dangerouslyDisableDeviceAuth"] = *node.Spec.Gateway.ControlUI.DangerouslyDisableDeviceAuth
+	}
 
 	config := map[string]any{
 		"gateway": map[string]any{

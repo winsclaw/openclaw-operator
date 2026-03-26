@@ -61,6 +61,16 @@ case "$ALLOW_INSECURE_AUTH" in
         ;;
 esac
 
+DANGEROUSLY_DISABLE_DEVICE_AUTH="${OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH:-false}"
+case "$DANGEROUSLY_DISABLE_DEVICE_AUTH" in
+    true|false)
+        ;;
+    *)
+        echo "错误：OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH 仅支持 true 或 false。"
+        exit 1
+        ;;
+esac
+
 echo "=== 开始部署 OpenClaw 实例 ($INSTANCE_NAME) ==="
 
 # 1. 创建命名空间
@@ -109,12 +119,15 @@ if [[ -n "${OPENCLAW_TRUSTED_PROXIES:-}" ]]; then
 fi
 
 SPEC_CONTROL_UI=""
-if [[ "$ALLOW_INSECURE_AUTH" == "true" ]]; then
-    SPEC_CONTROL_UI=$(cat <<EOF
-    controlUi:
-      allowInsecureAuth: true
-EOF
-)
+if [[ "$ALLOW_INSECURE_AUTH" == "true" || "$DANGEROUSLY_DISABLE_DEVICE_AUTH" == "true" ]]; then
+    SPEC_CONTROL_UI="    controlUi:"
+    if [[ "$ALLOW_INSECURE_AUTH" == "true" ]]; then
+        SPEC_CONTROL_UI="${SPEC_CONTROL_UI}\n      allowInsecureAuth: true"
+    fi
+    if [[ "$DANGEROUSLY_DISABLE_DEVICE_AUTH" == "true" ]]; then
+        SPEC_CONTROL_UI="${SPEC_CONTROL_UI}\n      dangerouslyDisableDeviceAuth: true"
+    fi
+    SPEC_CONTROL_UI="$(printf '%b' "${SPEC_CONTROL_UI}")"
 fi
 
 SPEC_CA=""
@@ -184,9 +197,24 @@ echo "=== 实例部署完成 ==="
 echo "对应的 OpenClaw 节点已成功启动！"
 echo "你可以通过执行以下命令来进行端口转发并在本地访问 Web UI："
 echo "kubectl port-forward -n $NAMESPACE svc/${INSTANCE_NAME} 18789:18789"
-if [[ "$ALLOW_INSECURE_AUTH" == "true" ]]; then
+if [[ "$DANGEROUSLY_DISABLE_DEVICE_AUTH" == "true" ]]; then
     echo "然后访问 http://localhost:18789 并输入 Gateway Token 即可进入 Web UI。"
-    echo "当前已启用 gateway.controlUi.allowInsecureAuth=true，不再要求浏览器设备配对审批。"
+    echo "当前已启用 gateway.controlUi.dangerouslyDisableDeviceAuth=true，Control UI 将仅依赖 token/password，不再要求设备配对。"
+elif [[ "$ALLOW_INSECURE_AUTH" == "true" ]]; then
+    echo "然后访问 http://localhost:18789 并输入 Gateway Token 即可进入 Web UI。"
+    echo "当前已启用 gateway.controlUi.allowInsecureAuth=true。该模式仅对本机调试场景放宽 Control UI 设备身份要求，经由 Ingress 的远程浏览器访问仍可能要求设备配对。"
 else
     echo "然后访问 http://localhost:18789 并输入 Gateway Token 即可配对。"
 fi
+
+# 当 Ingress 启用且配置了访问域名时，打印公网访问地址
+INGRESS_HOST="${OPENCLAW_INGRESS_HOST:-}"
+if [[ "${OPENCLAW_INGRESS_ENABLED:-false}" != "false" && -n "$INGRESS_HOST" ]]; then
+    INGRESS_URL="https://${INGRESS_HOST}?token=${OPENCLAW_GATEWAY_TOKEN}"
+    echo ""
+    echo "─────────────────────────────────────────────────────────"
+    echo "  Ingress 访问地址（已启用 HTTPS）："
+    echo "  $INGRESS_URL"
+    echo "─────────────────────────────────────────────────────────"
+fi
+

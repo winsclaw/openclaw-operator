@@ -9,7 +9,7 @@ const (
 	DefaultGatewayPort  int32  = 18789
 	DefaultServiceType         = corev1.ServiceTypeClusterIP
 	DefaultStorageSize  string = "5Gi"
-	DefaultOpenClawRepo string = "ghcr.fzyun.io/openclaw/openclaw"
+	DefaultOpenClawRepo string = "ghcr.io/openclaw/openclaw"
 	DefaultOpenClawTag  string = "2026.3.2"
 	DefaultChromiumRepo string = "chromedp/headless-shell"
 	DefaultChromiumTag  string = "146.0.7680.31"
@@ -33,7 +33,8 @@ type OpenClawGatewaySpec struct {
 }
 
 type OpenClawControlUISpec struct {
-	AllowInsecureAuth *bool `json:"allowInsecureAuth,omitempty"`
+	AllowInsecureAuth            *bool `json:"allowInsecureAuth,omitempty"`
+	DangerouslyDisableDeviceAuth *bool `json:"dangerouslyDisableDeviceAuth,omitempty"`
 }
 
 type OpenClawIngressSpec struct {
