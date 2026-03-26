@@ -44,6 +44,22 @@ INSTANCE_NAME="${OPENCLAW_INSTANCE_NAME}"
 SECRET_NAME="${INSTANCE_NAME}-env-secret"
 PRIMARY_MODEL_RAW="${OPENCLAW_PRIMARY_MODEL}"
 
+compose_ingress_host() {
+    local suffix="${OPENCLAW_INGRESS_HOST:-}"
+    suffix="${suffix#.}"
+
+    if [[ -z "$suffix" ]]; then
+        return 0
+    fi
+
+    if [[ "$suffix" == "$INSTANCE_NAME" || "$suffix" == "$INSTANCE_NAME".* ]]; then
+        printf '%s\n' "$suffix"
+        return 0
+    fi
+
+    printf '%s.%s\n' "$INSTANCE_NAME" "$suffix"
+}
+
 # 转换模型格式
 if [[ "$PRIMARY_MODEL_RAW" == */* ]]; then
     PRIMARY_MODEL="$PRIMARY_MODEL_RAW"
@@ -96,12 +112,13 @@ echo "应用密钥已配置完成。"
 echo "[3/4] 正在部署 OpenClawNode 实例资源..."
 
 # 构建动态 YAML 组件
+INGRESS_HOST="$(compose_ingress_host)"
 SPEC_INGRESS=""
 if [[ "${OPENCLAW_INGRESS_ENABLED:-false}" != "false" ]]; then
     SPEC_INGRESS=$(cat <<EOF
   ingress:
     enabled: true
-    host: "${OPENCLAW_INGRESS_HOST:-}"
+    host: "${INGRESS_HOST}"
     className: "${OPENCLAW_INGRESS_CLASS_NAME:-nginx}"
     tlsSecretName: "${OPENCLAW_INGRESS_TLS_SECRET_NAME:-openclaw-tls}"
 EOF
@@ -208,7 +225,6 @@ else
 fi
 
 # 当 Ingress 启用且配置了访问域名时，打印公网访问地址
-INGRESS_HOST="${OPENCLAW_INGRESS_HOST:-}"
 if [[ "${OPENCLAW_INGRESS_ENABLED:-false}" != "false" && -n "$INGRESS_HOST" ]]; then
     INGRESS_URL="https://${INGRESS_HOST}?token=${OPENCLAW_GATEWAY_TOKEN}"
     echo ""
@@ -217,4 +233,3 @@ if [[ "${OPENCLAW_INGRESS_ENABLED:-false}" != "false" && -n "$INGRESS_HOST" ]]; 
     echo "  $INGRESS_URL"
     echo "─────────────────────────────────────────────────────────"
 fi
-

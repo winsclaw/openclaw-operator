@@ -2,7 +2,7 @@
 
 > 企业级云原生 AI 浏览器自动化 Kubernetes Operator
 
-**[English](./README.md)**
+**[English](./README.md) | 简体中文 | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)**
 
 ---
 
@@ -120,10 +120,10 @@ kubectl port-forward -n openclaw-node svc/my-openclaw-node 18789:18789
 # 打开 http://localhost:18789，输入 Gateway Token 完成配对
 ```
 
-如果你是通过 Ingress 访问实例，地址格式是：
+如果你是通过 `deploy/.env` 的 `OPENCLAW_INGRESS_HOST` 启用 Ingress，脚本会自动拼接访问域名：
 
 ```text
-https://<your-ingress-host>/?token=<OPENCLAW_GATEWAY_TOKEN>
+https://<OPENCLAW_INSTANCE_NAME>.<OPENCLAW_INGRESS_HOST>/?token=<OPENCLAW_GATEWAY_TOKEN>
 ```
 
 首次访问时看到 `pairing required` 是正常现象。`token` 只负责网关鉴权，不会自动信任当前浏览器，还需要审批一次设备配对请求：
@@ -141,6 +141,23 @@ kubectl exec -n openclaw-node deployment/my-openclaw-node -c main -- \
 如果你只是需要在本机调试时放宽 Control UI 的设备身份要求，可以在执行 `./deploy/install-instance.sh` 前设置 `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true`。这会让实例生成 `gateway.controlUi.allowInsecureAuth: true`。这个开关不会关闭经由 Ingress 的远程浏览器设备配对检查。
 
 如果你确实要完全关闭 Control UI 的设备身份检查、只依赖 Gateway Token 或密码访问 UI，需要设置 `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH=true`。这会让实例生成 `gateway.controlUi.dangerouslyDisableDeviceAuth: true`。这个模式风险很高，只适合短期调试或完全受信任网络，因为任何拿到 token 的人都可以直接进入 UI。
+
+#### 第 6 步：卸载
+
+删除 OpenClaw 实例：
+
+```bash
+./deploy/uninstall-instance.sh
+```
+
+卸载 Operator 及 CRD：
+
+```bash
+./deploy/uninstall-operator.sh
+```
+
+> [!WARNING]
+> 卸载 Operator 会移除控制器和 CRD，但不会自动删除已有的 `OpenClawNode` 实例。建议先删除实例。
 
 ### OpenClawNode 资源定义参考
 
@@ -208,13 +225,15 @@ spec:
 | `OPENCLAW_CHROMIUM_IMAGE_TAG` | 可选 | Chromium 镜像标签（默认 `146.0.7680.31`） |
 | `OPENCLAW_CHROMIUM_IMAGE_PULL_POLICY` | 可选 | Chromium 镜像拉取策略 |
 | `OPENCLAW_INGRESS_ENABLED` | 可选 | `auto`、`true` 或 `false` |
-| `OPENCLAW_INGRESS_HOST` | 可选 | HTTPS 公网域名 |
+| `OPENCLAW_INGRESS_HOST` | 可选 | Ingress 公网域名后缀；脚本会拼成 `<OPENCLAW_INSTANCE_NAME>.<OPENCLAW_INGRESS_HOST>` |
 | `OPENCLAW_INGRESS_CLASS_NAME` | 可选 | Ingress 类名（默认 `nginx`） |
 | `OPENCLAW_INGRESS_TLS_SECRET_NAME` | 可选 | HTTPS TLS Secret 名称 |
 | `OPENCLAW_TRUSTED_PROXIES` | 可选 | 负载均衡器 IP，逗号分隔 |
 | `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | 可选 | 设为 `true` 后仅对本机调试场景放宽 Control UI 设备身份要求，不会关闭 Ingress 远程访问的设备配对 |
 | `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH` | 可选 | 设为 `true` 后彻底关闭 Control UI 设备身份检查，仅依赖 Gateway Token/Password，风险很高 |
-| `OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME` | 可选 | 自定义 CA 证书的 ConfigMap 名称 |
+| `OPENCLAW_CA_CERT_FILE` | 可选 | 自定义 CA 证书文件路径 |
+| `OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME` | 可选 | 挂载到节点的自定义 CA 证书 ConfigMap 名称 |
+| `OPENCLAW_ENV_FILE` | 可选 | 自定义环境变量文件路径（默认 `deploy/.env`） |
 
 ---
 

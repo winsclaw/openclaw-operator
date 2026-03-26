@@ -2,7 +2,7 @@
 
 > Enterprise-Grade Cloud-Native AI Browser Automation on Kubernetes
 
-**[中文文档](./README.zh.md)**
+**English | [简体中文](./README.zh.md) | [繁體中文](./README.zh-TW.md) | [日本語](./README.ja.md)**
 
 ---
 
@@ -120,10 +120,10 @@ kubectl port-forward -n openclaw-node svc/my-openclaw-node 18789:18789
 # Open http://localhost:18789 and enter your Gateway Token to pair
 ```
 
-If you access the instance through Ingress, use:
+If you enable Ingress through `OPENCLAW_INGRESS_HOST` in `deploy/.env`, the script builds the public host automatically:
 
 ```text
-https://<your-ingress-host>/?token=<OPENCLAW_GATEWAY_TOKEN>
+https://<OPENCLAW_INSTANCE_NAME>.<OPENCLAW_INGRESS_HOST>/?token=<OPENCLAW_GATEWAY_TOKEN>
 ```
 
 Seeing `pairing required` on first access is expected. The token only authenticates the browser to the Gateway; you still need to approve the device pairing request once:
@@ -141,6 +141,23 @@ After approval, refresh the page and the Web UI will open normally.
 If you only need to relax Control UI device identity checks for local debugging, set `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true` before running `./deploy/install-instance.sh`. This makes the instance render `gateway.controlUi.allowInsecureAuth: true`. It does not disable device pairing checks for remote browser access through Ingress.
 
 If you truly need to disable Control UI device identity checks entirely and rely on the Gateway token or password only, set `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH=true`. This makes the instance render `gateway.controlUi.dangerouslyDisableDeviceAuth: true`. This is high risk and should only be used for short-lived debugging or fully trusted networks because anyone with the token can enter the UI.
+
+#### Step 6: Uninstallation
+
+To remove an OpenClaw instance:
+
+```bash
+./deploy/uninstall-instance.sh
+```
+
+To uninstall the Operator and CRDs:
+
+```bash
+./deploy/uninstall-operator.sh
+```
+
+> [!WARNING]
+> Uninstalling the operator will remove the controller and CRDs but will not automatically delete existing `OpenClawNode` instances. It is recommended to delete instances first.
 
 ### OpenClawNode Custom Resource Reference
 
@@ -208,13 +225,15 @@ spec:
 | `OPENCLAW_CHROMIUM_IMAGE_TAG` | Optional | Chromium sidecar image tag (default: `146.0.7680.31`) |
 | `OPENCLAW_CHROMIUM_IMAGE_PULL_POLICY` | Optional | Chromium image pull policy |
 | `OPENCLAW_INGRESS_ENABLED` | Optional | `auto`, `true`, or `false` |
-| `OPENCLAW_INGRESS_HOST` | Optional | Public hostname for HTTPS access |
+| `OPENCLAW_INGRESS_HOST` | Optional | Public ingress domain suffix; the script builds `<OPENCLAW_INSTANCE_NAME>.<OPENCLAW_INGRESS_HOST>` |
 | `OPENCLAW_INGRESS_CLASS_NAME` | Optional | Ingress class (default: `nginx`) |
 | `OPENCLAW_INGRESS_TLS_SECRET_NAME` | Optional | TLS Secret for HTTPS |
 | `OPENCLAW_TRUSTED_PROXIES` | Optional | Comma-separated IPs of your load balancers |
 | `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | Optional | Set to `true` to relax Control UI device identity checks for local debugging only; it does not disable remote pairing checks through Ingress |
 | `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH` | Optional | Set to `true` to fully disable Control UI device identity checks and rely on token/password only; high risk |
-| `OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME` | Optional | ConfigMap with custom CA certificates |
+| `OPENCLAW_CA_CERT_FILE` | Optional | Path to a custom CA certificate file (used by scripts if applicable) |
+| `OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME` | Optional | ConfigMap with custom CA certificates to be mounted into the node |
+| `OPENCLAW_ENV_FILE` | Optional | Path to a custom environment file (default: `deploy/.env`) |
 
 ---
 
