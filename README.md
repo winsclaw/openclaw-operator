@@ -6,9 +6,9 @@
 
 ---
 
-### What is openclaw-k8s?
+### What is openclaw-operator?
 
-`openclaw-k8s` is a Kubernetes Operator for [OpenClaw](https://github.com/openclaw/openclaw) — a cloud-native AI browser automation platform. It brings the full power of the Kubernetes Operator pattern to managing OpenClaw node lifecycles at enterprise scale.
+`openclaw-operator` is a Kubernetes Operator for [OpenClaw](https://github.com/openclaw/openclaw) — a cloud-native AI browser automation platform. It brings the full power of the Kubernetes Operator pattern to managing OpenClaw node lifecycles at enterprise scale.
 
 Instead of manually managing Deployments, Services, ConfigMaps, PVCs, and Ingress resources, you declare a single `OpenClawNode` custom resource and let the Operator handle everything.
 

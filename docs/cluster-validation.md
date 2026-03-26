@@ -26,7 +26,7 @@
 
 脚本位置：
 
-- [cluster-validate.sh](/opt/k8s-openclaw-work/openclaw-k8s/operator/scripts/cluster-validate.sh)
+- [cluster-validate.sh](/opt/k8s-openclaw-work/openclaw-operator/operator/scripts/cluster-validate.sh)
 
 常用命令：
 

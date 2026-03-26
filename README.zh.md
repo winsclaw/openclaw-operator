@@ -6,9 +6,9 @@
 
 ---
 
-### 什么是 openclaw-k8s？
+### 什么是 openclaw-operator？
 
-`openclaw-k8s` 是一个基于 [OpenClaw](https://github.com/openclaw/openclaw) 的 Kubernetes Operator —— 一个企业级云原生 AI 浏览器自动化平台。它将 Kubernetes Operator 模式的强大能力带到了 OpenClaw 节点的全生命周期管理中，适用于企业规模的生产部署。
+`openclaw-operator` 是一个基于 [OpenClaw](https://github.com/openclaw/openclaw) 的 Kubernetes Operator —— 一个企业级云原生 AI 浏览器自动化平台。它将 Kubernetes Operator 模式的强大能力带到了 OpenClaw 节点的全生命周期管理中，适用于企业规模的生产部署。
 
 告别手动管理 Deployment、Service、ConfigMap、PVC 和 Ingress，你只需声明一个 `OpenClawNode` 自定义资源，剩下的一切交给 Operator 处理。
 

@@ -21,7 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	appsv1alpha1 "github.com/openclaw/openclaw-k8s/operator/api/v1alpha1"
+	appsv1alpha1 "github.com/openclaw/openclaw-operator/operator/api/v1alpha1"
 )
 
 const (

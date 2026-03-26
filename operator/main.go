@@ -12,8 +12,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	appsv1alpha1 "github.com/openclaw/openclaw-k8s/operator/api/v1alpha1"
-	"github.com/openclaw/openclaw-k8s/operator/internal/controller"
+	appsv1alpha1 "github.com/openclaw/openclaw-operator/operator/api/v1alpha1"
+	"github.com/openclaw/openclaw-operator/operator/internal/controller"
 )
 
 var scheme = runtime.NewScheme()

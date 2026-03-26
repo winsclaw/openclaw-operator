@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	appsv1alpha1 "github.com/openclaw/openclaw-k8s/operator/api/v1alpha1"
+	appsv1alpha1 "github.com/openclaw/openclaw-operator/operator/api/v1alpha1"
 )
 
 func TestValidateNodeSpec(t *testing.T) {

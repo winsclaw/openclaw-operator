@@ -2,7 +2,7 @@ domain: openclaw.io
 layout:
 - go.kubebuilder.io/v4
 projectName: openclaw-operator
-repo: github.com/openclaw/openclaw-k8s/operator
+repo: github.com/openclaw/openclaw-operator/operator
 resources:
 - api:
     crdVersion: v1
@@ -11,6 +11,6 @@ resources:
   domain: openclaw.io
   group: apps
   kind: OpenClawNode
-  path: github.com/openclaw/openclaw-k8s/operator/api/v1alpha1
+  path: github.com/openclaw/openclaw-operator/operator/api/v1alpha1
   version: v1alpha1
 version: "3"

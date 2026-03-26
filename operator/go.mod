@@ -1,4 +1,4 @@
-module github.com/openclaw/openclaw-k8s/operator
+module github.com/openclaw/openclaw-operator/operator
 
 go 1.22.0
 
