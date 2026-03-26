@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      serviceAccountName: controller-manager
+      containers:
+      - name: manager
+        image: docker.ops.fzyun.io:5000/openclaw/openclaw-operator:latest
+        command:
+        - /manager
+        args:
+        - --leader-elect
+        ports:
+        - containerPort: 8080
+          name: metrics
+        - containerPort: 8081
+          name: probes
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: probes
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: probes

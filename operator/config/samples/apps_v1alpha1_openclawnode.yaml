@@ -1,0 +1,27 @@
+apiVersion: apps.openclaw.io/v1alpha1
+kind: OpenClawNode
+metadata:
+  name: node-a
+spec:
+  runtimeSecretRef:
+    name: node-a-runtime
+  gateway:
+    port: 18789
+    trustedProxies:
+    - 10.1.1.10
+    - 10.1.1.11
+  ingress:
+    enabled: true
+    className: nginx
+    host: node-a.example.com
+    tlsSecretName: node-a-tls
+    annotations:
+      cert-manager.io/cluster-issuer: ca-issuer
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  storage:
+    size: 20Gi
+  chromium:
+    enabled: true
+  configMode: merge
+  caBundle:
+    configMapName: node-a-ca-bundle
