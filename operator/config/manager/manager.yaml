@@ -15,7 +15,7 @@ spec:
       serviceAccountName: controller-manager
       containers:
       - name: manager
-        image: docker.ops.fzyun.io:5000/openclaw/openclaw-operator:latest
+        image: docker.io/openclaw/openclaw-operator:latest
         command:
         - /manager
         args:

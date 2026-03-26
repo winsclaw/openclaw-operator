@@ -26,9 +26,14 @@ type OpenClawImageSpec struct {
 }
 
 type OpenClawGatewaySpec struct {
-	Port           int32              `json:"port,omitempty"`
-	ServiceType    corev1.ServiceType `json:"serviceType,omitempty"`
-	TrustedProxies []string           `json:"trustedProxies,omitempty"`
+	Port           int32                  `json:"port,omitempty"`
+	ServiceType    corev1.ServiceType     `json:"serviceType,omitempty"`
+	TrustedProxies []string               `json:"trustedProxies,omitempty"`
+	ControlUI      *OpenClawControlUISpec `json:"controlUi,omitempty"`
+}
+
+type OpenClawControlUISpec struct {
+	AllowInsecureAuth *bool `json:"allowInsecureAuth,omitempty"`
 }
 
 type OpenClawIngressSpec struct {

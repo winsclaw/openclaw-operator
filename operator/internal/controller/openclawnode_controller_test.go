@@ -101,6 +101,10 @@ func TestRenderOpenClawConfig(t *testing.T) {
 	node.Name = "node-a"
 	node.Spec.Gateway.Port = 19090
 	node.Spec.Gateway.TrustedProxies = []string{"10.0.0.1", "10.0.0.2"}
+	allowInsecureAuth := true
+	node.Spec.Gateway.ControlUI = &appsv1alpha1.OpenClawControlUISpec{
+		AllowInsecureAuth: &allowInsecureAuth,
+	}
 	disabled := false
 	node.Spec.Chromium = &appsv1alpha1.OpenClawChromiumSpec{Enabled: &disabled}
 
@@ -122,6 +126,11 @@ func TestRenderOpenClawConfig(t *testing.T) {
 	proxies := gateway["trustedProxies"].([]any)
 	if len(proxies) != 2 {
 		t.Fatalf("unexpected trusted proxies: %#v", proxies)
+	}
+
+	controlUI := gateway["controlUi"].(map[string]any)
+	if got := controlUI["allowInsecureAuth"].(bool); !got {
+		t.Fatalf("unexpected controlUi.allowInsecureAuth: %v", got)
 	}
 
 	browser := config["browser"].(map[string]any)
@@ -152,6 +161,11 @@ func TestRenderOpenClawConfigDefaultsTrustedProxiesToEmptyArray(t *testing.T) {
 	proxies := gateway["trustedProxies"].([]any)
 	if len(proxies) != 0 {
 		t.Fatalf("expected empty trusted proxies, got %#v", proxies)
+	}
+
+	controlUI := gateway["controlUi"].(map[string]any)
+	if _, ok := controlUI["allowInsecureAuth"]; ok {
+		t.Fatalf("expected controlUi.allowInsecureAuth to be omitted by default, got %#v", controlUI)
 	}
 }
 

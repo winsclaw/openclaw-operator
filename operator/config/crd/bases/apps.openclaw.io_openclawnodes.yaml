@@ -72,6 +72,11 @@ spec:
                     type: array
                     items:
                       type: string
+                  controlUi:
+                    type: object
+                    properties:
+                      allowInsecureAuth:
+                        type: boolean
               ingress:
                 type: object
                 properties:

@@ -30,7 +30,7 @@ operator_image() {
     return 0
   fi
 
-  local registry="${OPENCLAW_OPERATOR_IMAGE_REGISTRY:-docker.ops.fzyun.io:5000}"
+  local registry="${OPENCLAW_OPERATOR_IMAGE_REGISTRY}"
   local repository="${OPENCLAW_OPERATOR_IMAGE_REPOSITORY:-openclaw/openclaw-operator}"
   local tag="${OPENCLAW_OPERATOR_IMAGE_TAG:-latest}"
   printf '%s/%s:%s\n' "$registry" "$repository" "$tag"

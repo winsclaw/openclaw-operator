@@ -39,11 +39,32 @@ func (in *OpenClawChromiumSpec) DeepCopy() *OpenClawChromiumSpec {
 	return out
 }
 
+func (in *OpenClawControlUISpec) DeepCopyInto(out *OpenClawControlUISpec) {
+	*out = *in
+	if in.AllowInsecureAuth != nil {
+		out.AllowInsecureAuth = new(bool)
+		*out.AllowInsecureAuth = *in.AllowInsecureAuth
+	}
+}
+
+func (in *OpenClawControlUISpec) DeepCopy() *OpenClawControlUISpec {
+	if in == nil {
+		return nil
+	}
+	out := new(OpenClawControlUISpec)
+	in.DeepCopyInto(out)
+	return out
+}
+
 func (in *OpenClawGatewaySpec) DeepCopyInto(out *OpenClawGatewaySpec) {
 	*out = *in
 	if in.TrustedProxies != nil {
 		out.TrustedProxies = make([]string, len(in.TrustedProxies))
 		copy(out.TrustedProxies, in.TrustedProxies)
+	}
+	if in.ControlUI != nil {
+		out.ControlUI = new(OpenClawControlUISpec)
+		in.ControlUI.DeepCopyInto(out.ControlUI)
 	}
 }
 

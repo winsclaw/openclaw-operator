@@ -441,15 +441,19 @@ func renderOpenClawConfig(node *appsv1alpha1.OpenClawNode) (string, error) {
 	if trustedProxies == nil {
 		trustedProxies = []string{}
 	}
+	controlUI := map[string]any{
+		"dangerouslyAllowHostHeaderOriginFallback": true,
+	}
+	if node.Spec.Gateway.ControlUI != nil && node.Spec.Gateway.ControlUI.AllowInsecureAuth != nil {
+		controlUI["allowInsecureAuth"] = *node.Spec.Gateway.ControlUI.AllowInsecureAuth
+	}
 
 	config := map[string]any{
 		"gateway": map[string]any{
 			"port":           node.Spec.GatewayPort(),
 			"mode":           "local",
 			"trustedProxies": trustedProxies,
-			"controlUi": map[string]any{
-				"dangerouslyAllowHostHeaderOriginFallback": true,
-			},
+			"controlUi":      controlUI,
 		},
 		"browser": map[string]any{
 			"enabled":        node.Spec.ChromiumEnabled(),

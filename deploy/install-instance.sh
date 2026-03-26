@@ -51,6 +51,16 @@ else
     PRIMARY_MODEL="openai/$PRIMARY_MODEL_RAW"
 fi
 
+ALLOW_INSECURE_AUTH="${OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH:-false}"
+case "$ALLOW_INSECURE_AUTH" in
+    true|false)
+        ;;
+    *)
+        echo "错误：OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH 仅支持 true 或 false。"
+        exit 1
+        ;;
+esac
+
 echo "=== 开始部署 OpenClaw 实例 ($INSTANCE_NAME) ==="
 
 # 1. 创建命名空间
@@ -98,6 +108,15 @@ if [[ -n "${OPENCLAW_TRUSTED_PROXIES:-}" ]]; then
     done
 fi
 
+SPEC_CONTROL_UI=""
+if [[ "$ALLOW_INSECURE_AUTH" == "true" ]]; then
+    SPEC_CONTROL_UI=$(cat <<EOF
+    controlUi:
+      allowInsecureAuth: true
+EOF
+)
+fi
+
 SPEC_CA=""
 if [[ -n "${OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME:-}" ]]; then
     SPEC_CA=$(cat <<EOF
@@ -105,6 +124,26 @@ if [[ -n "${OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME:-}" ]]; then
     configMapName: "${OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME}"
 EOF
 )
+fi
+
+# 构建 openclaw 应用镜像 spec（留空则 operator 使用内置默认值）
+SPEC_IMAGE=""
+if [[ -n "${OPENCLAW_IMAGE_REPOSITORY:-}" || -n "${OPENCLAW_IMAGE_TAG:-}" || -n "${OPENCLAW_IMAGE_PULL_POLICY:-}" ]]; then
+    SPEC_IMAGE="  image:"
+    [[ -n "${OPENCLAW_IMAGE_REPOSITORY:-}" ]] && SPEC_IMAGE="${SPEC_IMAGE}\n    repository: \"${OPENCLAW_IMAGE_REPOSITORY}\""
+    [[ -n "${OPENCLAW_IMAGE_TAG:-}" ]]        && SPEC_IMAGE="${SPEC_IMAGE}\n    tag: \"${OPENCLAW_IMAGE_TAG}\""
+    [[ -n "${OPENCLAW_IMAGE_PULL_POLICY:-}" ]] && SPEC_IMAGE="${SPEC_IMAGE}\n    pullPolicy: \"${OPENCLAW_IMAGE_PULL_POLICY}\""
+    SPEC_IMAGE="$(printf '%b' "${SPEC_IMAGE}")"
+fi
+
+# 构建 chromium sidecar 镜像 spec
+SPEC_CHROMIUM_IMAGE=""
+if [[ -n "${OPENCLAW_CHROMIUM_IMAGE_REPOSITORY:-}" || -n "${OPENCLAW_CHROMIUM_IMAGE_TAG:-}" || -n "${OPENCLAW_CHROMIUM_IMAGE_PULL_POLICY:-}" ]]; then
+    SPEC_CHROMIUM_IMAGE="    image:"
+    [[ -n "${OPENCLAW_CHROMIUM_IMAGE_REPOSITORY:-}" ]] && SPEC_CHROMIUM_IMAGE="${SPEC_CHROMIUM_IMAGE}\n      repository: \"${OPENCLAW_CHROMIUM_IMAGE_REPOSITORY}\""
+    [[ -n "${OPENCLAW_CHROMIUM_IMAGE_TAG:-}" ]]         && SPEC_CHROMIUM_IMAGE="${SPEC_CHROMIUM_IMAGE}\n      tag: \"${OPENCLAW_CHROMIUM_IMAGE_TAG}\""
+    [[ -n "${OPENCLAW_CHROMIUM_IMAGE_PULL_POLICY:-}" ]]  && SPEC_CHROMIUM_IMAGE="${SPEC_CHROMIUM_IMAGE}\n      pullPolicy: \"${OPENCLAW_CHROMIUM_IMAGE_PULL_POLICY}\""
+    SPEC_CHROMIUM_IMAGE="$(printf '%b' "${SPEC_CHROMIUM_IMAGE}")"
 fi
 
 cat <<EOF | kubectl apply -f -
@@ -116,14 +155,17 @@ metadata:
 spec:
   runtimeSecretRef:
     name: ${SECRET_NAME}
+${SPEC_IMAGE}
   gateway:
     port: 18789
 ${SPEC_PROXIES}
+${SPEC_CONTROL_UI}
 ${SPEC_INGRESS}
 ${SPEC_CA}
   configMode: merge
   chromium:
     enabled: true
+${SPEC_CHROMIUM_IMAGE}
   storage:
     size: 5Gi
 EOF
@@ -142,4 +184,9 @@ echo "=== 实例部署完成 ==="
 echo "对应的 OpenClaw 节点已成功启动！"
 echo "你可以通过执行以下命令来进行端口转发并在本地访问 Web UI："
 echo "kubectl port-forward -n $NAMESPACE svc/${INSTANCE_NAME} 18789:18789"
-echo "然后访问 http://localhost:18789 并输入 Gateway Token 即可配对。"
+if [[ "$ALLOW_INSECURE_AUTH" == "true" ]]; then
+    echo "然后访问 http://localhost:18789 并输入 Gateway Token 即可进入 Web UI。"
+    echo "当前已启用 gateway.controlUi.allowInsecureAuth=true，不再要求浏览器设备配对审批。"
+else
+    echo "然后访问 http://localhost:18789 并输入 Gateway Token 即可配对。"
+fi

@@ -76,6 +76,7 @@ IMAGE_REGISTRY=your.registry.io           # 拉取镜像的镜像仓库
 IMAGE_PUSH_REGISTRY=push.your.registry.io # 推送镜像的镜像仓库
 OPENCLAW_OPERATOR_IMAGE_REPOSITORY=your-org/openclaw-operator
 OPENCLAW_OPERATOR_IMAGE_TAG=latest
+OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=false
 ```
 
 #### 第 2 步：构建并推送 Operator 镜像
@@ -137,6 +138,8 @@ kubectl exec -n openclaw-node deployment/my-openclaw-node -c main -- \
 
 审批完成后刷新页面，Web UI 就可以正常进入。
 
+如果你想完全跳过浏览器设备配对、只依赖 Gateway Token 访问 UI，可以在执行 `./deploy/install-instance.sh` 前设置 `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true`。这会让实例生成 `gateway.controlUi.allowInsecureAuth: true`。这个模式只适合受信任环境，因为任何拿到 token 的人都可以进入 UI。
+
 ### OpenClawNode 资源定义参考
 
 ```yaml
@@ -156,6 +159,8 @@ spec:
     port: 18789
     trustedProxies:        # 可选：你的 Ingress 控制器 IP
       - 10.1.1.10
+    controlUi:
+      allowInsecureAuth: false   # 可选：跳过浏览器设备配对
 
   # 可选：自动创建 Ingress
   ingress:
@@ -193,11 +198,18 @@ spec:
 | `IMAGE_PUSH_REGISTRY` | ✅ 必填 | 推送构建镜像的仓库地址 |
 | `OPENCLAW_OPERATOR_IMAGE_REPOSITORY` | ✅ 必填 | 镜像仓库路径 |
 | `OPENCLAW_OPERATOR_IMAGE_TAG` | ✅ 必填 | 镜像标签（如 `latest`） |
+| `OPENCLAW_IMAGE_REPOSITORY` | 可选 | OpenClaw 应用镜像仓库（默认 `ghcr.io/openclaw/openclaw`） |
+| `OPENCLAW_IMAGE_TAG` | 可选 | OpenClaw 应用镜像标签（默认 `2026.3.2`） |
+| `OPENCLAW_IMAGE_PULL_POLICY` | 可选 | 应用镜像拉取策略（默认 `IfNotPresent`） |
+| `OPENCLAW_CHROMIUM_IMAGE_REPOSITORY` | 可选 | Chromium 镜像仓库（默认 `chromedp/headless-shell`） |
+| `OPENCLAW_CHROMIUM_IMAGE_TAG` | 可选 | Chromium 镜像标签（默认 `146.0.7680.31`） |
+| `OPENCLAW_CHROMIUM_IMAGE_PULL_POLICY` | 可选 | Chromium 镜像拉取策略 |
 | `OPENCLAW_INGRESS_ENABLED` | 可选 | `auto`、`true` 或 `false` |
 | `OPENCLAW_INGRESS_HOST` | 可选 | HTTPS 公网域名 |
 | `OPENCLAW_INGRESS_CLASS_NAME` | 可选 | Ingress 类名（默认 `nginx`） |
 | `OPENCLAW_INGRESS_TLS_SECRET_NAME` | 可选 | HTTPS TLS Secret 名称 |
 | `OPENCLAW_TRUSTED_PROXIES` | 可选 | 负载均衡器 IP，逗号分隔 |
+| `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | 可选 | 设为 `true` 后不再要求浏览器设备配对，仅依赖 Gateway Token |
 | `OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME` | 可选 | 自定义 CA 证书的 ConfigMap 名称 |
 
 ---

@@ -10,6 +10,8 @@ spec:
     trustedProxies:
     - 10.1.1.10
     - 10.1.1.11
+    controlUi:
+      allowInsecureAuth: false
   ingress:
     enabled: true
     className: nginx

@@ -76,6 +76,7 @@ IMAGE_REGISTRY=your.registry.io
 IMAGE_PUSH_REGISTRY=push.your.registry.io
 OPENCLAW_OPERATOR_IMAGE_REPOSITORY=your-org/openclaw-operator
 OPENCLAW_OPERATOR_IMAGE_TAG=latest
+OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=false
 ```
 
 #### Step 2: Build and push the Operator image
@@ -137,6 +138,8 @@ kubectl exec -n openclaw-node deployment/my-openclaw-node -c main -- \
 
 After approval, refresh the page and the Web UI will open normally.
 
+If you want to skip browser device pairing entirely and rely on the Gateway token only, set `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=true` before running `./deploy/install-instance.sh`. This makes the instance render `gateway.controlUi.allowInsecureAuth: true`. Use it only in trusted environments because anyone with the token can access the UI.
+
 ### OpenClawNode Custom Resource Reference
 
 ```yaml
@@ -156,6 +159,8 @@ spec:
     port: 18789
     trustedProxies:        # Optional: IPs of your ingress controllers
       - 10.1.1.10
+    controlUi:
+      allowInsecureAuth: false   # Optional: skip browser device pairing
 
   # Optional: auto-provision an Ingress
   ingress:
@@ -193,11 +198,18 @@ spec:
 | `IMAGE_PUSH_REGISTRY` | ✅ | Registry to push the built operator image to |
 | `OPENCLAW_OPERATOR_IMAGE_REPOSITORY` | ✅ | Image repository path |
 | `OPENCLAW_OPERATOR_IMAGE_TAG` | ✅ | Image tag (e.g., `latest`) |
+| `OPENCLAW_IMAGE_REPOSITORY` | Optional | OpenClaw application image repository (default: `ghcr.io/openclaw/openclaw`) |
+| `OPENCLAW_IMAGE_TAG` | Optional | OpenClaw application image tag (default: `2026.3.2`) |
+| `OPENCLAW_IMAGE_PULL_POLICY` | Optional | Application image pull policy (default: `IfNotPresent`) |
+| `OPENCLAW_CHROMIUM_IMAGE_REPOSITORY` | Optional | Chromium sidecar image repository (default: `chromedp/headless-shell`) |
+| `OPENCLAW_CHROMIUM_IMAGE_TAG` | Optional | Chromium sidecar image tag (default: `146.0.7680.31`) |
+| `OPENCLAW_CHROMIUM_IMAGE_PULL_POLICY` | Optional | Chromium image pull policy |
 | `OPENCLAW_INGRESS_ENABLED` | Optional | `auto`, `true`, or `false` |
 | `OPENCLAW_INGRESS_HOST` | Optional | Public hostname for HTTPS access |
 | `OPENCLAW_INGRESS_CLASS_NAME` | Optional | Ingress class (default: `nginx`) |
 | `OPENCLAW_INGRESS_TLS_SECRET_NAME` | Optional | TLS Secret for HTTPS |
 | `OPENCLAW_TRUSTED_PROXIES` | Optional | Comma-separated IPs of your load balancers |
+| `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | Optional | Set to `true` to disable browser device pairing and rely on the gateway token only |
 | `OPENCLAW_CA_BUNDLE_CONFIGMAP_NAME` | Optional | ConfigMap with custom CA certificates |
 
 ---
