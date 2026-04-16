@@ -12,7 +12,7 @@ COPY main.go ./
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o /manager .
 
-FROM gcr.io/distroless/static:nonroot
+FROM gcr.m.daocloud.io/distroless/static:nonroot
 
 WORKDIR /
 COPY --from=builder /manager /manager

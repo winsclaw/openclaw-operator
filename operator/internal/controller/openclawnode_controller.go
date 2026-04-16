@@ -10,6 +10,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	apiMeta "k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -30,6 +31,10 @@ const (
 	phasePending          = "Pending"
 	phaseReady            = "Ready"
 	phaseDegraded         = "Degraded"
+	uiAssetsConfigMapName = "openclaw-ui-assets"
+	uiAssetsVolumeName    = "ui-assets"
+	uiAssetsFaviconKey    = "favicon.svg"
+	uiAssetsFaviconPath   = "/app/dist/control-ui/favicon.svg"
 )
 
 // +kubebuilder:rbac:groups=apps.openclaw.io,resources=openclawnodes,verbs=get;list;watch;create;update;patch;delete
@@ -204,8 +209,13 @@ func (r *OpenClawNodeReconciler) reconcileService(ctx context.Context, node *app
 }
 
 func (r *OpenClawNodeReconciler) reconcileDeployment(ctx context.Context, node *appsv1alpha1.OpenClawNode) error {
+	hasUIAssets, err := r.configMapExists(ctx, node.Namespace, uiAssetsConfigMapName)
+	if err != nil {
+		return err
+	}
+
 	deployment := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: node.Name, Namespace: node.Namespace}}
-	_, err := controllerutil.CreateOrUpdate(ctx, r.Client, deployment, func() error {
+	_, err = controllerutil.CreateOrUpdate(ctx, r.Client, deployment, func() error {
 		if err := controllerutil.SetControllerReference(node, deployment, r.Scheme); err != nil {
 			return err
 		}
@@ -271,6 +281,8 @@ func (r *OpenClawNodeReconciler) reconcileDeployment(ctx context.Context, node *
 			})
 		}
 
+		addUIAssetsMounts(&deployment.Spec.Template.Spec, hasUIAssets)
+
 		volumes := []corev1.Volume{
 			{
 				Name: "config",
@@ -296,6 +308,10 @@ func (r *OpenClawNodeReconciler) reconcileDeployment(ctx context.Context, node *
 			},
 		}
 
+		if hasUIAssets {
+			volumes = append(volumes, uiAssetsVolume())
+		}
+
 		if node.Spec.CABundle != nil {
 			volumes = append(volumes, caBundleVolume(node))
 			addCABundleMounts(&deployment.Spec.Template.Spec, node.Spec.ChromiumEnabled())
@@ -305,6 +321,18 @@ func (r *OpenClawNodeReconciler) reconcileDeployment(ctx context.Context, node *
 		return nil
 	})
 	return err
+}
+
+func (r *OpenClawNodeReconciler) configMapExists(ctx context.Context, namespace, name string) (bool, error) {
+	cm := &corev1.ConfigMap{}
+	err := r.Get(ctx, types.NamespacedName{Name: name, Namespace: namespace}, cm)
+	if err == nil {
+		return true, nil
+	}
+	if apierrors.IsNotFound(err) {
+		return false, nil
+	}
+	return false, err
 }
 
 func (r *OpenClawNodeReconciler) reconcileIngress(ctx context.Context, node *appsv1alpha1.OpenClawNode) error {
@@ -570,6 +598,33 @@ func caBundleVolume(node *appsv1alpha1.OpenClawNode) corev1.Volume {
 			},
 		},
 	}
+}
+
+func uiAssetsVolume() corev1.Volume {
+	return corev1.Volume{
+		Name: uiAssetsVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{Name: uiAssetsConfigMapName},
+			},
+		},
+	}
+}
+
+func uiAssetsFaviconMount() corev1.VolumeMount {
+	return corev1.VolumeMount{
+		Name:      uiAssetsVolumeName,
+		MountPath: uiAssetsFaviconPath,
+		SubPath:   uiAssetsFaviconKey,
+		ReadOnly:  true,
+	}
+}
+
+func addUIAssetsMounts(spec *corev1.PodSpec, enabled bool) {
+	if !enabled || len(spec.Containers) == 0 {
+		return
+	}
+	spec.Containers[0].VolumeMounts = append(spec.Containers[0].VolumeMounts, uiAssetsFaviconMount())
 }
 
 func addCABundleMounts(spec *corev1.PodSpec, chromiumEnabled bool) {

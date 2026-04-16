@@ -85,6 +85,15 @@ OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH=false
 ./deploy/push-operator-image.sh
 ```
 
+如果你是给已经运行的 Operator 更新镜像（尤其是继续使用同一个 tag，比如 `latest`），请执行重启以让新镜像生效：
+
+```bash
+./deploy/restart-operator.sh
+```
+
+原因：仅 push 新镜像不会修改 Deployment 的 Pod 模板，Kubernetes 不会自动替换现有 `controller-manager` Pod；
+触发 `rollout restart` 后才会重新创建 Pod，并按镜像拉取策略拉取最新镜像。
+
 #### 第 3 步：安装 Operator
 
 将 CRD、RBAC 和控制器安装到 `openclaw-system` 命名空间：

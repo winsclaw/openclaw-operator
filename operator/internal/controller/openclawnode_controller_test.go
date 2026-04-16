@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	appsv1alpha1 "github.com/openclaw/openclaw-operator/operator/api/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 )
 
 func TestValidateNodeSpec(t *testing.T) {
@@ -181,5 +182,52 @@ func TestInitConfigCommandDoesNotCreateSessionStoreDirectory(t *testing.T) {
 	cmd := initConfigCommand()
 	if strings.Contains(cmd, "/home/node/.openclaw/sessions") {
 		t.Fatalf("initConfigCommand should not create a session store directory: %q", cmd)
+	}
+}
+
+func TestAddUIAssetsMountsAddsFaviconToMainContainer(t *testing.T) {
+	spec := &corev1.PodSpec{
+		Containers: []corev1.Container{{
+			Name:         "main",
+			VolumeMounts: []corev1.VolumeMount{{Name: "data", MountPath: "/home/node/.openclaw"}},
+		}, {
+			Name:         "chromium",
+			VolumeMounts: []corev1.VolumeMount{{Name: "tmp", MountPath: "/tmp"}},
+		}},
+	}
+
+	addUIAssetsMounts(spec, true)
+
+	main := spec.Containers[0]
+	if len(main.VolumeMounts) != 2 {
+		t.Fatalf("expected 2 main container mounts, got %d", len(main.VolumeMounts))
+	}
+	favicon := main.VolumeMounts[1]
+	if favicon.Name != uiAssetsVolumeName || favicon.MountPath != uiAssetsFaviconPath || favicon.SubPath != uiAssetsFaviconKey || !favicon.ReadOnly {
+		t.Fatalf("unexpected favicon mount: %+v", favicon)
+	}
+
+	chromium := spec.Containers[1]
+	if len(chromium.VolumeMounts) != 1 {
+		t.Fatalf("expected chromium mounts to remain unchanged, got %+v", chromium.VolumeMounts)
+	}
+}
+
+func TestAddUIAssetsMountsSkipsWhenDisabled(t *testing.T) {
+	spec := &corev1.PodSpec{
+		Containers: []corev1.Container{{
+			Name:         "main",
+			VolumeMounts: []corev1.VolumeMount{{Name: "data", MountPath: "/home/node/.openclaw"}},
+		}},
+	}
+
+	addUIAssetsMounts(spec, false)
+
+	main := spec.Containers[0]
+	if len(main.VolumeMounts) != 1 {
+		t.Fatalf("expected mounts to stay unchanged when disabled, got %+v", main.VolumeMounts)
+	}
+	if main.VolumeMounts[0].Name != "data" {
+		t.Fatalf("unexpected mount mutation: %+v", main.VolumeMounts)
 	}
 }
