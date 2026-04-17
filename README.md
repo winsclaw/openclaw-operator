@@ -192,6 +192,8 @@ spec:
     host: my-node.example.com
     className: nginx
     tlsSecretName: my-node-tls
+    annotations:
+      cert-manager.io/cluster-issuer: ca-issuer
 
   # Storage for browser profiles and state
   storage:
@@ -231,7 +233,9 @@ spec:
 | `OPENCLAW_INGRESS_ENABLED` | Optional | `auto`, `true`, or `false` |
 | `OPENCLAW_INGRESS_HOST` | Optional | Public ingress domain suffix; the script builds `<OPENCLAW_INSTANCE_NAME>.<OPENCLAW_INGRESS_HOST>` |
 | `OPENCLAW_INGRESS_CLASS_NAME` | Optional | Ingress class (default: `nginx`) |
-| `OPENCLAW_INGRESS_TLS_SECRET_NAME` | Optional | TLS Secret for HTTPS |
+| `OPENCLAW_INGRESS_TLS_SECRET_NAME` | Optional | TLS Secret for HTTPS (default: `<OPENCLAW_INSTANCE_NAME>-tls`) |
+| `OPENCLAW_INGRESS_CLUSTER_ISSUER` | Optional | cert-manager ClusterIssuer name; when set, the installer writes `cert-manager.io/cluster-issuer` to the generated Ingress |
+| `OPENCLAW_INGRESS_ISSUER` | Optional | cert-manager Issuer name; when set, the installer writes `cert-manager.io/issuer` to the generated Ingress |
 | `OPENCLAW_TRUSTED_PROXIES` | Optional | Comma-separated IPs of your load balancers |
 | `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | Optional | Set to `true` to relax Control UI device identity checks for local debugging only; it does not disable remote pairing checks through Ingress |
 | `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH` | Optional | Set to `true` to fully disable Control UI device identity checks and rely on token/password only; high risk |

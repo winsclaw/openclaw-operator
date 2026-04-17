@@ -60,6 +60,28 @@ compose_ingress_host() {
     printf '%s.%s\n' "$INSTANCE_NAME" "$suffix"
 }
 
+compose_ingress_annotations() {
+    local annotations=""
+
+    if [[ -n "${OPENCLAW_INGRESS_CLUSTER_ISSUER:-}" && -n "${OPENCLAW_INGRESS_ISSUER:-}" ]]; then
+        echo "错误：OPENCLAW_INGRESS_CLUSTER_ISSUER 和 OPENCLAW_INGRESS_ISSUER 不能同时设置。"
+        exit 1
+    fi
+
+    if [[ -n "${OPENCLAW_INGRESS_CLUSTER_ISSUER:-}" || -n "${OPENCLAW_INGRESS_ISSUER:-}" ]]; then
+        annotations="    annotations:"
+        if [[ -n "${OPENCLAW_INGRESS_CLUSTER_ISSUER:-}" ]]; then
+            annotations="${annotations}\n      cert-manager.io/cluster-issuer: \"${OPENCLAW_INGRESS_CLUSTER_ISSUER}\""
+        fi
+        if [[ -n "${OPENCLAW_INGRESS_ISSUER:-}" ]]; then
+            annotations="${annotations}\n      cert-manager.io/issuer: \"${OPENCLAW_INGRESS_ISSUER}\""
+        fi
+        annotations="$(printf '%b' "${annotations}")"
+    fi
+
+    printf '%s' "$annotations"
+}
+
 # 转换模型格式
 if [[ "$PRIMARY_MODEL_RAW" == */* ]]; then
     PRIMARY_MODEL="$PRIMARY_MODEL_RAW"
@@ -115,12 +137,15 @@ echo "[3/4] 正在部署 OpenClawNode 实例资源..."
 INGRESS_HOST="$(compose_ingress_host)"
 SPEC_INGRESS=""
 if [[ "${OPENCLAW_INGRESS_ENABLED:-false}" != "false" ]]; then
+    INGRESS_TLS_SECRET_NAME="${OPENCLAW_INGRESS_TLS_SECRET_NAME:-${INSTANCE_NAME}-tls}"
+    SPEC_INGRESS_ANNOTATIONS="$(compose_ingress_annotations)"
     SPEC_INGRESS=$(cat <<EOF
   ingress:
     enabled: true
     host: "${INGRESS_HOST}"
     className: "${OPENCLAW_INGRESS_CLASS_NAME:-nginx}"
-    tlsSecretName: "${OPENCLAW_INGRESS_TLS_SECRET_NAME:-openclaw-tls}"
+    tlsSecretName: "${INGRESS_TLS_SECRET_NAME}"
+${SPEC_INGRESS_ANNOTATIONS}
 EOF
 )
 fi

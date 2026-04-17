@@ -192,6 +192,8 @@ spec:
     host: my-node.example.com
     className: nginx
     tlsSecretName: my-node-tls
+    annotations:
+      cert-manager.io/cluster-issuer: ca-issuer
 
   # ブラウザプロファイルと状態のストレージ
   storage:
@@ -231,7 +233,9 @@ spec:
 | `OPENCLAW_INGRESS_ENABLED` | オプション | `auto`, `true`, または `false` |
 | `OPENCLAW_INGRESS_HOST` | オプション | 公開 Ingress ドメインのサフィックス。スクリプトは `<OPENCLAW_INSTANCE_NAME>.<OPENCLAW_INGRESS_HOST>` を生成します |
 | `OPENCLAW_INGRESS_CLASS_NAME` | オプション | Ingress クラス (デフォルト: `nginx`) |
-| `OPENCLAW_INGRESS_TLS_SECRET_NAME` | オプション | HTTPS 用の TLS Secret |
+| `OPENCLAW_INGRESS_TLS_SECRET_NAME` | オプション | HTTPS 用の TLS Secret (デフォルト: `<OPENCLAW_INSTANCE_NAME>-tls`) |
+| `OPENCLAW_INGRESS_CLUSTER_ISSUER` | オプション | cert-manager の ClusterIssuer 名。設定すると、インストーラーが生成する Ingress に `cert-manager.io/cluster-issuer` を書き込みます |
+| `OPENCLAW_INGRESS_ISSUER` | オプション | cert-manager の Issuer 名。設定すると、インストーラーが生成する Ingress に `cert-manager.io/issuer` を書き込みます |
 | `OPENCLAW_TRUSTED_PROXIES` | オプション | ロードバランサーの IP (カンマ区切り) |
 | `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | オプション | `true` に設定すると、ローカルデバッグ用にのみデバイス認証を緩和します |
 | `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH` | オプション | `true` に設定すると、デバイス認証を完全に無効化し、トークン/パスワードのみに依存します (高リスク) |

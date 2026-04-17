@@ -192,6 +192,8 @@ spec:
     host: my-node.example.com
     className: nginx
     tlsSecretName: my-node-tls
+    annotations:
+      cert-manager.io/cluster-issuer: ca-issuer
 
   # 瀏覽器 Profile 存儲
   storage:
@@ -231,7 +233,9 @@ spec:
 | `OPENCLAW_INGRESS_ENABLED` | 可選 | `auto`、`true` 或 `false` |
 | `OPENCLAW_INGRESS_HOST` | 可選 | Ingress 公網域名後綴；腳本會拼成 `<OPENCLAW_INSTANCE_NAME>.<OPENCLAW_INGRESS_HOST>` |
 | `OPENCLAW_INGRESS_CLASS_NAME` | 可選 | Ingress 類名（預設 `nginx`） |
-| `OPENCLAW_INGRESS_TLS_SECRET_NAME` | 可選 | HTTPS TLS Secret 名稱 |
+| `OPENCLAW_INGRESS_TLS_SECRET_NAME` | 可選 | HTTPS TLS Secret 名稱（預設 `<OPENCLAW_INSTANCE_NAME>-tls`） |
+| `OPENCLAW_INGRESS_CLUSTER_ISSUER` | 可選 | cert-manager 的 ClusterIssuer 名稱；設定後安裝腳本會為生成的 Ingress 寫入 `cert-manager.io/cluster-issuer` |
+| `OPENCLAW_INGRESS_ISSUER` | 可選 | cert-manager 的 Issuer 名稱；設定後安裝腳本會為生成的 Ingress 寫入 `cert-manager.io/issuer` |
 | `OPENCLAW_TRUSTED_PROXIES` | 可選 | 負載均衡器 IP，逗號分隔 |
 | `OPENCLAW_CONTROL_UI_ALLOW_INSECURE_AUTH` | 可選 | 設為 `true` 後僅對本機調試場景放寬 Control UI 設備身份要求，不會關閉 Ingress 遠端訪問的設備配對 |
 | `OPENCLAW_CONTROL_UI_DANGEROUSLY_DISABLE_DEVICE_AUTH` | 可選 | 設為 `true` 後徹底關閉 Control UI 設備身份檢查，僅依賴 Gateway Token/Password，風險很高 |
