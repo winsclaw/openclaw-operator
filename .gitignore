@@ -6,6 +6,7 @@ charts/*/Chart.lock
 # Editor
 *.swp
 *.swo
+.idea/
 
 # OS
 .DS_Store
